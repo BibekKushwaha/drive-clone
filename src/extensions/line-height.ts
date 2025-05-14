@@ -1,0 +1,1 @@
+import { Extension } from "@tiptap/react";

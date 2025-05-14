@@ -16,6 +16,10 @@ import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style'
 import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
+import Link from '@tiptap/extension-link';
+import TextAlign from '@tiptap/extension-text-align';
+import { FontSizeExtension } from '@/extensions/font-size';
+
 
 export const Editor = ()=>{
   const {setEditor} = useEditorStore();
@@ -52,12 +56,23 @@ export const Editor = ()=>{
         },
     extensions: [
         StarterKit,
+        TextStyle,
+        FontSizeExtension,
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+        }),
+        Link.configure({
+            openOnClick: false,
+            autolink: true,
+            defaultProtocol: "https",
+        }),
         Color,
         Highlight.configure({
             multicolor: true,
         }),
+        
         FontFamily,
-        TextStyle,
+        
         Underline,
         Image,
         ImageResize,
@@ -86,6 +101,7 @@ export const Editor = ()=>{
           </tbody>
         </table>
       `,
+      immediatelyRender: false,
   })
 
   return <div className='size-full overflow-x-auto bg=[#F9FBFD] px-4 print:p-0 print:bg-white print:overflow-visible'>

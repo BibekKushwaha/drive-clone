@@ -141,6 +141,15 @@
   }
 }
 .tiptap{
+  /* Link styles */
+  a {
+    @apply text-blue-600;
+    cursor: pointer;
+
+    &:hover {
+      @apply underline;
+    }
+  }
   /* image-specific styling */
   img {
     display: block;
@@ -154,6 +163,7 @@
   }
    /* Table-specific styling */
   table {
+    
     border-collapse: collapse;
     margin: 0;
     overflow: hidden;
