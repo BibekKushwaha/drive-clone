@@ -26,13 +26,13 @@ export const FontSizeExtension = Extension.create({
         attributes: {
           fontSize: {
             default: null,
-            parseHTML: (element) => {
-              return element.style.fontSize || null;
-            },
+            parseHTML: (element) => element.style.fontSize,
+            
             renderHTML: (attributes) => {
               if (!attributes.fontSize) {
                 return {};
               }
+              console.log("Rendering font size:", attributes.fontSize);
               return {
                 style: `font-size: ${attributes.fontSize}`,
               };
@@ -46,17 +46,11 @@ export const FontSizeExtension = Extension.create({
   addCommands() {
     return {
       setFontSize:
-        (fontSize: string) =>
-        ({ chain }) => {
-          if (!fontSize || isNaN(parseInt(fontSize))) {
-            return false;
-          }
-          return chain().updateAttributes("textStyle", { fontSize }).run();
+        (fontSize: string) =>({ chain }) => {
+          return chain().setMark("textStyle", { fontSize }).run();
         },
-      unsetFontSize:
-        () =>
-        ({ chain }) => {
-          return chain().updateAttributes("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+      unsetFontSize:() =>({ chain }) => {
+          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
         },
     };
   },

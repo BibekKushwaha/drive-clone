@@ -1,7 +1,7 @@
 "use client";
 import { cn } from '@/lib/utils';
 import {type ColorResult, SketchPicker} from 'react-color';
-import { AlignCenterIcon, AlignJustifyIcon, AlignLeftIcon, AlignRightIcon, BoldIcon, ChevronDownIcon, HighlighterIcon, ImagePlusIcon, Italic, Link2Icon, ListIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheckIcon, Underline, Undo2Icon, UploadIcon } from 'lucide-react';
+import { AlignCenterIcon, AlignJustifyIcon, AlignLeftIcon, AlignRightIcon, BoldIcon, ChevronDownIcon, HighlighterIcon, ImagePlusIcon, Italic, Link2Icon, ListCollapseIcon, ListIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheckIcon, Underline, Undo2Icon, UploadIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import { useEditorStore } from '@/store/use-editor-store';
 import { Separator } from "@/components/ui/separator";
@@ -21,36 +21,87 @@ import {
 import { Button } from '@/components/ui/button';
 import { DialogTitle } from '@radix-ui/react-dialog';
 
+ const LineHeightButton = ()=>{
+  const {editor} = useEditorStore();
+  const lineHeight = [
+    {
+      label: "Default",
+      value: "normal"
+    },
+    {
+      label: "Single",
+      value: "1"
+    },
+    {
+      label: "1.15",
+      value: "1.15"
+    },
+    {
+      label: "1.5",
+      value: "1.5"
+    },
+    {
+      label: "Double",
+      value: "2"
+    }
+  ]
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden test-sm">
+          <ListCollapseIcon className='size-4'/>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className='p-1 flex flex-col gap-y-1'>
+        {
+          lineHeight.map(({label , value })=>(
+            <button 
+            key={value}
+            onClick={()=>{
+              editor?.chain().focus().setLineHeight(value).run();
+            }}
+            className={cn("flex items-center gap--x-2 px-2 py-1   rounded-sm hover:bg-neutral-200/80 px",
+              editor?.getAttributes("paragraph").lineHeight == value &&"bg-neutral-200/80"
+            )}
+            >
+              <span className='text-sm'>{label}</span>
+            </button>
+          ))
+        }
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 const FontSizeButton = () => {
   const { editor } = useEditorStore();
   const currentFontSize = editor?.getAttributes("textStyle").fontSize
-    ? editor.getAttributes("textStyle").fontSize.replace("px", "")
+    ? editor?.getAttributes("textStyle").fontSize.replace("px", "")
     : "16";
   const [fontSize, setFontSize] = useState(currentFontSize);
   const [inputValue, setInputValue] = useState(fontSize);
   const [isEditing, setIsEditing] = useState(false);
 
-  const updateFontSize = (value: string) => {
-    const parsedValue = parseInt(value);
-    if (isNaN(parsedValue) || parsedValue <= 0) {
-      return;
+  const updateFontSize = (newSize: string) => {
+    const size = parseInt(newSize);
+    if (!isNaN(size) && size > 0) {
+      editor?.chain().focus().setFontSize(`${size}px`).run();
+      setFontSize(newSize);
+      setInputValue(newSize);
+      setIsEditing(false);
     }
-    editor?.chain().focus().setFontSize(`${parsedValue}px`).run();
-    setFontSize(value);
-    setInputValue(value);
-    setIsEditing(false);
+    
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
+    setInputValue(e.target.value);
   };
 
   const handleInputBlur = () => {
     updateFontSize(inputValue);
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       updateFontSize(inputValue);
@@ -60,6 +111,7 @@ const FontSizeButton = () => {
 
   const increment = () => {
     const newSize = parseInt(fontSize) + 1;
+    console.log("Incrementing font size to:", newSize);
     if (newSize > 0) {
       updateFontSize(newSize.toString());
     }
@@ -67,6 +119,7 @@ const FontSizeButton = () => {
 
   const decrement = () => {
     const newSize = parseInt(fontSize) - 1;
+    console.log("Decrementing font size to:", newSize);
     if (newSize > 0) {
       updateFontSize(newSize.toString());
     }
@@ -86,7 +139,7 @@ const FontSizeButton = () => {
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
-          onKeyDown={handleInputKeyDown}
+          onKeyDown={handleKeyDown}
           className="h-7 w-10 text-sm text-center border border-neutral-400 rounded-sm bg-transparent focus:outline-none focus:ring-0"
         />
       ) : (
@@ -629,7 +682,7 @@ const Toolbar = () => {
       <ImageButton/>
       <Separator orientation="vertical"  className='h-6 bg-neutral-500'/>
       <AlignButton/>
-      {/* TODO : Line Height */}
+      <LineHeightButton/>
       <ListButton/>
       <Separator orientation="vertical"  className='h-6 bg-neutral-500'/>
       {
